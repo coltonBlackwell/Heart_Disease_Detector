@@ -51,7 +51,7 @@ def train(input_csv):
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
 
-    base_model = LogisticRegression(max_iter=1000, multi_class='multinomial', solver='lbfgs')
+    base_model = LogisticRegression(max_iter=1000, multi_class='multinomial', solver='lbfgs') # class_weight='balanced'
     model = BaggingClassifier(
         base_model,
         n_estimators=150,
@@ -61,9 +61,9 @@ def train(input_csv):
     )
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
-    print("Bagged Logistic Regression Accuracy:", accuracy_score(y_test, y_pred))
+    # print("Bagged Logistic Regression Accuracy:", accuracy_score(y_test, y_pred))
 
-    return model, scaler
+    return X, model, scaler, y_test, y_pred
 
 # # Example usage
 # model, scaler = train("data/processed.cleveland.data")
