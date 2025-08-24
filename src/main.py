@@ -138,7 +138,7 @@ def plot_risk_factors(user_input):
 # Streamlit app
 def app(model, scaler, oh_columns, X, y_test, y_pred):
     # Header section
-    st.markdown('<p class="main-header">❤️ Heart Disease Risk Detector</p>', unsafe_allow_html=True)
+    st.markdown('<h1 class="main-header">❤️ Heart Disease Risk Detector</h1>', unsafe_allow_html=True)
     
     # Create tabs for different functionalities
     tab1, tab2, tab3 = st.tabs(["Risk Assessment", "Health Dashboard", "Model Insights"])
