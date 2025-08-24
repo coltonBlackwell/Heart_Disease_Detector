@@ -365,7 +365,7 @@ def app(model, scaler, oh_columns, X, y_test, y_pred):
 
 # Main
 def main():
-    X, model, scaler, y_test, y_pred, oh_columns = train("../data/processed.cleveland.data")
+    X, model, scaler, y_test, y_pred, oh_columns = train("processed.cleveland.data")
     # test(X, model, scaler, y_test, y_pred)
     app(model, scaler, oh_columns, X, y_test, y_pred)
 
