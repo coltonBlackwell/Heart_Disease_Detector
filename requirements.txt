@@ -3,3 +3,5 @@ pandas
 streamlit
 scikit-learn
 imblearn
+plotly
+time
