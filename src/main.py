@@ -5,12 +5,12 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import time
-from utils.train_model import train
-from utils.test_model import test
+import os
+from pathlib import Path
 
 # Set page configuration
 st.set_page_config(
-    page_title="Heart Disease Risk Detector",
+    page_title="Heart Disease Risk Predictor",
     page_icon="❤️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -68,6 +68,31 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# Function to get the correct file path
+def get_file_path(filename):
+    """
+    Get the absolute path to a file, checking multiple possible locations
+    """
+    # Check if file exists in the given path
+    if os.path.exists(filename):
+        return filename
+    
+    # Check relative to current directory
+    current_dir = Path(__file__).parent
+    possible_paths = [
+        filename,
+        current_dir / filename,
+        current_dir / "data" / filename,
+        current_dir / "../data" / filename,
+        current_dir / "../../data" / filename,
+    ]
+    
+    for path in possible_paths:
+        if os.path.exists(path):
+            return path
+    
+    return None
+
 # Preprocess user input
 def preprocess_user_input(user_input_dict, oh_columns, scaler):
     df = pd.DataFrame([user_input_dict])
@@ -104,6 +129,7 @@ def plot_feature_importance(model, feature_names):
             title="Top 10 Most Important Features for Prediction",
             labels={'x': 'Importance', 'y': 'Feature'}
         )
+        fig.update_traces(marker_line_color='black', marker_line_width=1)
         fig.update_layout(showlegend=False)
         return fig
     return None
@@ -130,6 +156,7 @@ def plot_risk_factors(user_input):
         title="Your Risk Factors",
         labels={'x': 'Present', 'y': 'Risk Factor'}
     )
+    fig.update_traces(marker_line_color='black', marker_line_width=1)
     fig.update_layout(showlegend=False)
     fig.update_xaxes(range=[0, 1], showticklabels=False)
     return fig
@@ -137,10 +164,10 @@ def plot_risk_factors(user_input):
 # Streamlit app
 def app(model, scaler, oh_columns, X, y_test, y_pred):
     # Header section
-    st.markdown('<p class="main-header">❤️ Heart Disease Risk Detector</p>', unsafe_allow_html=True)
+    st.markdown('<p class="main-header">❤️ Heart Disease Risk Predictor</p>', unsafe_allow_html=True)
     
     # Create tabs for different functionalities
-    tab1, tab2, tab3 = st.tabs(["Risk Assessment", "Health Dashboard", "Model Insights"])
+    tab1, tab2, tab3, tab4 = st.tabs(["Risk Assessment", "Health Dashboard", "Model Insights", "About"])
     
     with tab1:
         col1, col2 = st.columns([1, 1])
@@ -258,43 +285,66 @@ def app(model, scaler, oh_columns, X, y_test, y_pred):
                     - Follow medical advice carefully
                     """)
     
-    # with tab2:
-    #     st.markdown('<div class="sub-header">Health Dashboard</div>', unsafe_allow_html=True)
-        
-    #     # Interactive health metrics comparison
-    #     col1, col2 = st.columns(2)
-        
-    #     with col1:
-    #         fig = px.histogram(
-    #             X, x='age', title='Age Distribution in Dataset',
-    #             labels={'age': 'Age'}, nbins=20
-    #         )
-    #         fig.update_traces(marker_line_color='black', marker_line_width=1)
-    #         st.plotly_chart(fig, use_container_width=True)
-        
-    #     with col2:
-    #         st.plotly_chart(px.box(
-    #             X, y='chol', title='Cholesterol Distribution',
-    #             labels={'chol': 'Cholesterol (mg/dl)'}
-    #         ), use_container_width=True)
-        
-    #     # Health score calculator
-    #     st.markdown('<div class="sub-header">Heart Health Score Calculator</div>', unsafe_allow_html=True)
-    #     st.write("Based on your inputs, here's your heart health score:")
-        
-    #     # Simplified scoring (this is just for demonstration)
-    #     health_score = 100
-    #     if user_input['chol'] > 240: health_score -= 15
-    #     if user_input['trestbps'] > 140: health_score -= 15
-    #     if user_input['thalach'] < 120: health_score -= 10
-    #     if user_input['oldpeak'] > 1.0: health_score -= 10
-    #     if user_input['exang'] == 1: health_score -= 10
-    #     if user_input['fbs'] == 1: health_score -= 5
-        
-    #     st.metric("Your Heart Health Score", f"{health_score}/100")
-    #     st.progress(health_score/100)
-    
     with tab2:
+        st.markdown('<div class="sub-header">Health Dashboard</div>', unsafe_allow_html=True)
+        
+        # Create a clean copy of the data for visualization
+        X_clean = X.copy()
+        
+        # Filter out invalid values
+        X_clean = X_clean[X_clean['age'] > 0]  # Remove negative/zero ages
+        X_clean = X_clean[X_clean['age'] <= 120]  # Remove unrealistic ages
+        X_clean = X_clean[X_clean['chol'] > 0]  # Remove negative cholesterol
+        
+        # Interactive health metrics comparison
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            if not X_clean.empty:
+                fig = px.histogram(
+                    X_clean, x='age', title='Age Distribution in Dataset',
+                    labels={'age': 'Age'}, nbins=20
+                )
+                fig.update_traces(marker_line_color='black', marker_line_width=1)
+                fig.update_xaxes(range=[0, 100])  # Set reasonable age range
+                st.plotly_chart(fig, use_container_width=True)
+            else:
+                st.warning("No valid age data available for visualization")
+        
+        with col2:
+            if not X_clean.empty:
+                fig = px.box(
+                    X_clean, y='chol', title='Cholesterol Distribution',
+                    labels={'chol': 'Cholesterol (mg/dl)'}
+                )
+                fig.update_traces(marker_line_color='black', marker_line_width=1)
+                # Set reasonable cholesterol range (most adults are between 120-300)
+                fig.update_yaxes(range=[100, 400])
+                st.plotly_chart(fig, use_container_width=True)
+            else:
+                st.warning("No valid cholesterol data available for visualization")
+        
+        # Add data quality information
+        st.markdown("---")
+        st.caption(f"Visualizing {len(X_clean)} of {len(X)} records after filtering invalid values")
+        
+        # Health score calculator
+        st.markdown('<div class="sub-header">Heart Health Score Calculator</div>', unsafe_allow_html=True)
+        st.write("Based on your inputs, here's your heart health score:")
+        
+        # Simplified scoring (this is just for demonstration)
+        health_score = 100
+        if user_input['chol'] > 240: health_score -= 15
+        if user_input['trestbps'] > 140: health_score -= 15
+        if user_input['thalach'] < 120: health_score -= 10
+        if user_input['oldpeak'] > 1.0: health_score -= 10
+        if user_input['exang'] == 1: health_score -= 10
+        if user_input['fbs'] == 1: health_score -= 5
+        
+        st.metric("Your Heart Health Score", f"{health_score}/100")
+        st.progress(health_score/100)
+    
+    with tab3:
         st.markdown('<div class="sub-header">Model Performance Insights</div>', unsafe_allow_html=True)
         
         # Show model accuracy and metrics
@@ -319,7 +369,7 @@ def app(model, scaler, oh_columns, X, y_test, y_pred):
         fig.update_layout(title="Confusion Matrix")
         st.plotly_chart(fig, use_container_width=True)
     
-    with tab3:
+    with tab4:
         st.markdown('<div class="sub-header">About This Tool</div>', unsafe_allow_html=True)
         st.markdown("""
         <div class="info-text" style="color: black;">
@@ -365,9 +415,45 @@ def app(model, scaler, oh_columns, X, y_test, y_pred):
 
 # Main
 def main():
-    X, model, scaler, y_test, y_pred, oh_columns = train("../data/processed.cleveland.data")
-    # test(X, model, scaler, y_test, y_pred)
-    app(model, scaler, oh_columns, X, y_test, y_pred)
+    # Try to find the data file
+    data_path = get_file_path("processed.cleveland.data")
+    
+    if data_path is None:
+        st.error("""
+        **Data file not found!**
+        
+        Please make sure the data file is available in one of these locations:
+        - In the same directory as this script: `processed.cleveland.data`
+        - In a 'data' subdirectory: `data/processed.cleveland.data`
+        - Or upload it using the file uploader below.
+        """)
+        
+        # Add file uploader as fallback
+        uploaded_file = st.file_uploader("Upload your heart disease data file", type=["data", "csv", "txt"])
+        
+        if uploaded_file is not None:
+            try:
+                # For .data files (like Cleveland dataset)
+                if uploaded_file.name.endswith('.data'):
+                    df = pd.read_csv(uploaded_file, header=None, na_values='?')
+                else:
+                    # For CSV files
+                    df = pd.read_csv(uploaded_file)
+                
+                # Process your data
+                X, model, scaler, y_test, y_pred, oh_columns = train(df)
+                app(model, scaler, oh_columns, X, y_test, y_pred)
+                
+            except Exception as e:
+                st.error(f"Error processing file: {str(e)}")
+        else:
+            st.stop()
+    else:
+        try:
+            X, model, scaler, y_test, y_pred, oh_columns = train(data_path)
+            app(model, scaler, oh_columns, X, y_test, y_pred)
+        except Exception as e:
+            st.error(f"Error loading data: {str(e)}")
 
 if __name__ == "__main__":
     main()
