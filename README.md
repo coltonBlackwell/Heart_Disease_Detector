@@ -1,5 +1,7 @@
 # ❤️ Heart Disease Risk Detector
 
+Interactive Website => [click me](https://heartdetector.streamlit.app/)!
+
 ![thumbnail](images/thumbnail.png)
 
 ## 📋 Overview
