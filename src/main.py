@@ -7,6 +7,7 @@ from plotly.subplots import make_subplots
 import time
 from utils.train_model import train
 from utils.test_model import test
+from pathlib import Path
 
 # Set page configuration
 st.set_page_config(
@@ -365,7 +366,8 @@ def app(model, scaler, oh_columns, X, y_test, y_pred):
 
 # Main
 def main():
-    X, model, scaler, y_test, y_pred, oh_columns = train("processed.cleveland.data")
+    DATA_PATH = Path(__file__).parent.parent / "data" / "processed.cleveland.data"
+    X, model, scaler, y_test, y_pred, oh_columns = train(str(DATA_PATH))
     # test(X, model, scaler, y_test, y_pred)
     app(model, scaler, oh_columns, X, y_test, y_pred)
 
