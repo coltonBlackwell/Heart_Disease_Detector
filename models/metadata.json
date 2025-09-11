@@ -1,0 +1,32 @@
+{
+  "trained_at": "2025-09-11T18:30:39.442945+00:00",
+  "data_path": "/home/colton/Documents/Coding/github/Heart_Disease_Detector/data/processed.cleveland.data",
+  "data_sha256": "a74b7efa387bc9d108d7d0115d831fe9b414b29ae7124f331b622b4efa0427c8",
+  "metrics": {
+    "accuracy": 0.8688524590163934,
+    "precision": 0.8125,
+    "recall": 0.9285714285714286,
+    "roc_auc": 0.9691558441558442,
+    "pr_auc": 0.9646732693529031
+  },
+  "feature_schema": {
+    "numeric": [
+      "age",
+      "trestbps",
+      "chol",
+      "thalach",
+      "oldpeak"
+    ],
+    "categorical": [
+      "sex",
+      "cp",
+      "fbs",
+      "restecg",
+      "exang",
+      "slope",
+      "ca",
+      "thal"
+    ]
+  },
+  "notes": "Calibrated LogisticRegression with leakage-free preprocessing"
+}
