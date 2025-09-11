@@ -349,6 +349,60 @@ def app(model, metadata):
                         f.write(json.dumps(log_row) + "\n")
                 except Exception:
                     pass
+
+                # Also maintain a CSV alongside the NDJSON for easy ingestion (e.g., Power BI)
+                try:
+                    ndjson_path = logs_dir / "predictions.ndjson"
+                    csv_path = logs_dir / "predictions.csv"
+
+                    # Define a stable column order
+                    base_cols = [
+                        "ts",
+                        "risk_score",
+                        "pred",
+                        "threshold",
+                        "model_trained_at",
+                        "model_data_sha256",
+                    ]
+                    feature_cols = metadata.get("feature_schema", {}).get("numeric", []) + \
+                                   metadata.get("feature_schema", {}).get("categorical", [])
+                    ordered_cols = base_cols + feature_cols
+
+                    if not csv_path.exists():
+                        # Backfill: convert existing NDJSON to CSV and include the current row
+                        rows = []
+                        if ndjson_path.exists():
+                            with open(ndjson_path, "r") as nf:
+                                for line in nf:
+                                    line = line.strip()
+                                    if not line:
+                                        continue
+                                    try:
+                                        rows.append(json.loads(line))
+                                    except Exception:
+                                        continue
+                        # If NDJSON didn't exist (edge case), include the current row
+                        if not ndjson_path.exists():
+                            rows.append(log_row)
+
+                        df_csv = pd.DataFrame(rows)
+                        # Ensure all expected columns exist
+                        for c in ordered_cols:
+                            if c not in df_csv.columns:
+                                df_csv[c] = pd.NA
+                        df_csv = df_csv[ordered_cols]
+                        df_csv.to_csv(csv_path, index=False)
+                    else:
+                        # Append just the current row
+                        df_row = pd.DataFrame([log_row])
+                        for c in ordered_cols:
+                            if c not in df_row.columns:
+                                df_row[c] = pd.NA
+                        df_row = df_row[ordered_cols]
+                        df_row.to_csv(csv_path, mode="a", header=False, index=False)
+                except Exception:
+                    # CSV maintenance is best-effort; avoid breaking the UI on errors
+                    pass
     
     
     

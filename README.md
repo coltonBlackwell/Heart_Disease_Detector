@@ -54,6 +54,20 @@ streamlit run src/main.py
 
 The application will open in your default browser at http://localhost:8501.
 
+## 📈 Monitoring & Drift Detection
+Daily monitoring compares current holdout metrics to the original training baseline and stores a JSON report in `data/logs/monitor`.
+
+- Script: `src/utils/monitor_model.py`
+- Output: `data/logs/monitor/report_YYYY-MM-DD.json` and `data/logs/monitor/latest.json`
+- Thresholds: small tolerances for accuracy, precision, recall, ROC AUC, PR AUC
+- CI: GitHub Actions workflow `.github/workflows/monitor.yml` runs daily. On drift or failure, it uploads artifacts and opens a GitHub issue with the latest report.
+
+Run locally:
+
+```
+python src/utils/monitor_model.py
+```
+
 ## 📊 Data Source
 The model is trained on the Cleveland Heart Disease dataset from the UCI Machine Learning Repository:
 
