@@ -4,6 +4,9 @@ Interactive Website => [click me](https://heartdetector.streamlit.app/)!
 
 ![thumbnail](images/thumbnail.png)
 
+
+![results](images/results.png)
+
 ## 📋 Overview
 Heart Disease Risk Predictor is a machine learning web application that estimates an individual's risk of heart disease based on health parameters. Built with Streamlit, it provides an intuitive interface for risk assessment with visualizations and personalized recommendations.
 
