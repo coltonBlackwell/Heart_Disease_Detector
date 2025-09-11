@@ -1,5 +1,7 @@
 # ❤️ Heart Disease Risk Detector
 
+Interactive Website => [click me](https://heartdetector.streamlit.app/)!
+
 ![thumbnail](images/thumbnail.png)
 
 ## 📋 Overview
@@ -32,16 +34,16 @@ pip install -r requirements.txt
 
 ## 📁 Project Structure
 
-heart-disease-predictor/
-├── src/
-│   ├── main.py                 # Main Streamlit application
-│   └── utils/
-│       ├── train_model.py      # Model training utilities
-│       └── test_model.py       # Model testing utilities
-├── data/
-│   └── processed.cleveland.data  # Heart disease dataset
-├── requirements.txt            # Python dependencies
-└── README.md                   # This file
+heart-disease-predictor/ \
+├── src/ \
+│   ├── main.py                 # Main Streamlit application \
+│   └── utils/ \
+│       ├── train_model.py      # Model training utilities \
+│       └── test_model.py       # Model testing utilities \
+├── data/ \
+│   └── processed.cleveland.data  # Heart disease dataset \
+├── requirements.txt            # Python dependencies \
+└── README.md                   # This file 
 
 ## 🏃‍♂️ Usage
 Run the application with:
